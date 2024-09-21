@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  TextInput,
   Button,
 } from "react-native";
 import ExpenditureForm from "./ExpenditureForm";
@@ -14,10 +13,12 @@ import TransferForm from "./TransferForm";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import "react-native-get-random-values";
 import { v4 as uuidv4 } from "uuid";
+import TransactionTypeButtonGroup from "./TransactionTypeButtonGroup";
+import { TRANSACTION_TYPES } from "../../constants/constants";
 
 export default function FormScreen({ route, navigation }) {
   const [transactionType, setTransactionType] = useState("Expenditure");
-  const [form, setForm] = useState({
+  const [expenditureForm, setExpenditureForm] = useState({
     amount: "",
     date: new Date(),
     category: "",
@@ -27,151 +28,120 @@ export default function FormScreen({ route, navigation }) {
     note: "",
   });
 
-  var hasUnsavedChanges = Boolean(false);
+  const [incomeForm, setIncomeForm] = useState({
+    amount: "",
+    date: new Date(),
+    category: "",
+    account: "",
+    title: "",
+    note: "",
+  });
+
+  const [transferForm, setTransferForm] = useState({
+    amount: "",
+    date: new Date(),
+    fromAccount: "",
+    toAccount: "",
+    title: "",
+    recipient: "",
+    note: "",
+  });
 
   const handleInputChange = (name, value) => {
-    setForm({ ...form, [name]: value });
+    if (transactionType === TRANSACTION_TYPES.EXPENDITURE)
+      setExpenditureForm({ ...expenditureForm, [name]: value });
+    else if (transactionType === TRANSACTION_TYPES.INCOME)
+      setIncomeForm({ ...incomeForm, [name]: value });
+    else if (transactionType === TRANSACTION_TYPES.TRANSFER)
+      setTransferForm({ ...transferForm, [name]: value });
   };
 
-  // React.useEffect(
-  //   () =>
-  //     navigation.addListener("beforeRemove", (e) => {
-  //       if (!hasUnsavedChanges) {
-  //         // If we don't have unsaved changes, then we don't need to do anything
-  //         return;
-  //       }
-
-  //       // Prevent default behavior of leaving the screen
-  //       e.preventDefault();
-
-  //       // Prompt the user before leaving the screen
-  //       Alert.alert(
-  //         "Discard changes?",
-  //         "You have unsaved changes. Are you sure to discard them and leave the screen?",
-  //         [
-  //           { text: "Don't leave", style: "cancel", onPress: () => {} },
-  //           {
-  //             text: "Discard",
-  //             style: "destructive",
-  //             // If the user confirmed, then we dispatch the action we blocked earlier
-  //             // This will continue the action that had triggered the removal of the screen
-  //             onPress: () => navigation.dispatch(e.data.action),
-  //           },
-  //         ]
-  //       );
-  //     }),
-  //   [navigation, hasUnsavedChanges]
-  // );
+  function resetForm() {
+    setExpenditureForm({
+      amount: "",
+      date: new Date(),
+      category: "",
+      account: "",
+      title: "",
+      recipient: "",
+      note: "",
+    });
+    setIncomeForm({
+      amount: "",
+      date: new Date(),
+      category: "",
+      account: "",
+      title: "",
+      note: "",
+    });
+    setTransferForm({
+      amount: "",
+      date: new Date(),
+      fromAccount: "",
+      toAccount: "",
+      title: "",
+      recipient: "",
+      note: "",
+    });
+  }
 
   const storeData = async () => {
     try {
-      await AsyncStorage.setItem(uuidv4(), JSON.stringify(form));
+      await AsyncStorage.setItem(uuidv4(), JSON.stringify(expenditureForm));
       alert("Success", "Data stored successfully!");
-      // Reset form
-      setForm({
-        amount: "",
-        date: new Date(),
-        category: "",
-        account: "",
-        title: "",
-        recipient: "",
-        note: "",
-      });
+      resetForm();
+
       navigation.navigate("Home");
     } catch (error) {
       alert("Error", "Failed to store the data");
-      console.log(error);
     }
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.buttonGroup}>
-        <TouchableOpacity
-          style={[
-            styles.button,
-            transactionType === "Income" && styles.selectedButton,
-          ]}
-          onPress={() => setTransactionType("Income")}
-        >
-          <Text
-            style={[
-              styles.buttonText,
-              transactionType === "Income" && styles.selectedButtontext,
-            ]}
-          >
-            Income
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.button,
-            transactionType === "Expenditure" && styles.selectedButton,
-          ]}
-          onPress={() => setTransactionType("Expenditure")}
-        >
-          <Text
-            style={[
-              styles.buttonText,
-              transactionType === "Expenditure" && styles.selectedButtontext,
-            ]}
-          >
-            Expenditure
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.button,
-            transactionType === "Transfer" && styles.selectedButton,
-          ]}
-          onPress={() => setTransactionType("Transfer")}
-        >
-          <Text
-            style={[
-              styles.buttonText,
-              transactionType === "Transfer" && styles.selectedButtontext,
-            ]}
-          >
-            Transfer
-          </Text>
-        </TouchableOpacity>
-      </View>
-      {transactionType === "Expenditure" && (
+      <TransactionTypeButtonGroup
+        transactionType={transactionType}
+        setTransactionType={setTransactionType}
+      />
+      {transactionType === TRANSACTION_TYPES.EXPENDITURE && (
         <ExpenditureForm
           navigation={navigation}
-          form={form}
+          form={expenditureForm}
           handleInputChange={handleInputChange}
           storeData
         />
       )}
-      {transactionType === "Income" && (
+      {transactionType === TRANSACTION_TYPES.INCOME && (
         <IncomeForm
           navigation={navigation}
-          form={form}
+          form={expenditureForm}
           handleInputChange={handleInputChange}
           storeData
         />
       )}
-      {transactionType === "Transfer" && (
+      {transactionType === TRANSACTION_TYPES.TRANSFER && (
         <TransferForm
           navigation={navigation}
-          form={form}
+          form={expenditureForm}
           handleInputChange={handleInputChange}
           storeData
         />
       )}
 
-      <Button
-        onPress={() =>
-          // alert(
-          //   `${form.amount}, ${form.account}, ${form.category}, ${
-          //     form.title
-          //   }, ${form.date.toLocaleDateString()}, ${form.note}`
-          // )
-          storeData()
-        }
-        title="Save"
-      />
+      <View style={styles.buttonGroup}>
+        <TouchableOpacity style={styles.button} onPress={() => storeData()}>
+          <Text>Save</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => {
+            resetForm();
+            navigation.navigate("Home");
+          }}
+        >
+          <Text>Discard</Text>
+        </TouchableOpacity>
+      </View>
     </ScrollView>
   );
 }
@@ -193,35 +163,9 @@ const styles = StyleSheet.create({
   button: {
     paddingVertical: 12,
     paddingHorizontal: 20,
-    backgroundColor: "#FF9986",
+    borderColor: "#FF9986",
+    borderWidth: 1,
     borderRadius: 5,
-    marginHorizontal: 5,
-  },
-  selectedButton: {
-    backgroundColor: "#FF6347",
-  },
-  selectedButtontext: {
-    fontWeight: "bold",
-  },
-  buttonText: {
-    color: "#fff",
-  },
-  formGroup: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 15,
-    paddingHorizontal: 10,
-  },
-  label: {
-    flex: 2,
-    fontSize: 16,
-    color: "#808080",
-  },
-  input: {
-    flex: 5,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
-    paddingVertical: 8,
-    fontSize: 16,
+    marginHorizontal: 10,
   },
 });

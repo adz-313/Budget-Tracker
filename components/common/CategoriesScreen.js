@@ -1,11 +1,11 @@
-// App.js
 import React from "react";
 import { TouchableOpacity } from "react-native";
 import { View, Text, StyleSheet, FlatList } from "react-native";
-import Icon from "react-native-vector-icons/Ionicons"; // Icons from Ionicons (Royalty-free)
+import Icon from "react-native-vector-icons/Ionicons";
+import { ICONS } from "../../constants/constants";
 
 const categories = [
-  { id: "1", name: "Groceries", icon: "cart-outline" },
+  { id: "1", name: "Groceries", icon: ICONS.CART },
   { id: "2", name: "Transport", icon: "car-outline" },
   { id: "3", name: "Entertainment", icon: "tv-outline" },
   { id: "4", name: "Shopping", icon: "shirt-outline" },
@@ -52,7 +52,6 @@ export default function CategoriesScreen({ route, navigation }) {
   );
 }
 
-// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,

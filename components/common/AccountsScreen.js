@@ -1,8 +1,7 @@
-// App.js
 import React from "react";
 import { TouchableOpacity } from "react-native";
 import { View, Text, FlatList, StyleSheet } from "react-native";
-import Icon from "react-native-vector-icons/Ionicons"; // Using Ionicons from react-native-vector-icons
+import Icon from "react-native-vector-icons/Ionicons";
 
 const paymentOptions = [
   {

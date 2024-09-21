@@ -22,13 +22,11 @@ export default function Home() {
     if (mydata != null) {
       mydata.map((arr) => setData([...data, new Object(JSON.parse(arr[1]))]));
     }
-    // console.log(mydata);
   };
 
   useFocusEffect(
     useCallback(() => {
       getMyStringValue();
-      console.log(data);
     }, [])
   );
 

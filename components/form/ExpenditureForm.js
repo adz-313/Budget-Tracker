@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Icon from "react-native-vector-icons/Ionicons";
+import { SCREENS } from "../../constants/constants";
 
 export default function ExpenditureForm({
   form,
@@ -19,11 +20,11 @@ export default function ExpenditureForm({
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate || form.date;
     setShow(false);
-    handleInputChange("date", currentDate); // Update the date state
+    handleInputChange("date", currentDate);
   };
 
   const showDatepicker = () => {
-    setShow(true); // Show the DateTimePicker
+    setShow(true);
   };
 
   return (
@@ -64,7 +65,7 @@ export default function ExpenditureForm({
         <Text style={styles.label}>Category</Text>
         <TouchableOpacity
           onPress={() =>
-            navigation.navigate("Categories", {
+            navigation.navigate(SCREENS.CATEGORIES, {
               handleInputChange: handleInputChange,
             })
           }
@@ -85,7 +86,7 @@ export default function ExpenditureForm({
         <Text style={styles.label}>Account</Text>
         <TouchableOpacity
           onPress={() =>
-            navigation.navigate("Accounts", {
+            navigation.navigate(SCREENS.ACCOUNTS, {
               handleInputChange: handleInputChange,
             })
           }
@@ -106,7 +107,7 @@ export default function ExpenditureForm({
         <Text style={styles.label}>Title</Text>
         <TextInput
           style={styles.input}
-          placeholder="What did you spend on? (optional)"
+          placeholder="For (optional)"
           value={form.title}
           onChangeText={(value) => handleInputChange("title", value)}
         />
@@ -118,7 +119,7 @@ export default function ExpenditureForm({
         <TextInput
           style={styles.input}
           placeholder="Enter recipient (optional)"
-          value={form.recepient}
+          value={form.recipient}
           onChangeText={(value) => handleInputChange("recipient", value)}
         />
       </View>
@@ -127,10 +128,12 @@ export default function ExpenditureForm({
       <View style={styles.formGroup}>
         <Text style={styles.label}>Note</Text>
         <TextInput
-          style={styles.input}
+          style={styles.textArea}
           placeholder="Add a note (optional)"
           value={form.note}
           onChangeText={(value) => handleInputChange("note", value)}
+          multiline={true}
+          numberOfLines={4}
         />
       </View>
     </>
@@ -139,8 +142,8 @@ export default function ExpenditureForm({
 
 const styles = StyleSheet.create({
   inputWrapper: {
-    flexDirection: "row", // Makes the icon and input inline
-    alignItems: "center", // Vertically centers the icon with the input
+    flexDirection: "row",
+    alignItems: "center",
     borderBottomWidth: 1,
     borderBottomColor: "#ccc",
     paddingVertical: 10,
@@ -148,7 +151,7 @@ const styles = StyleSheet.create({
     flex: 5,
   },
   nestedInput: {
-    flex: 1, // Takes up the remaining space
+    flex: 1,
     fontSize: 16,
     color: "#333",
   },
@@ -177,5 +180,14 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#ccc",
+  },
+  textArea: {
+    fontSize: 16,
+    height: 150,
+    textAlignVertical: "top",
+    flex: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+    paddingVertical: 8,
   },
 });

@@ -2,7 +2,7 @@ import React from "react";
 import { ScrollView, View, Text, StyleSheet, Dimensions } from "react-native";
 import { PieChart } from "react-native-chart-kit";
 
-const { width } = Dimensions.get("window"); // Get device width
+const { width } = Dimensions.get("window");
 
 const PieChartCard = () => {
   const data = [

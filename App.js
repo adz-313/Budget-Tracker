@@ -1,5 +1,4 @@
-import { useContext, createContext } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Icon from "react-native-vector-icons/Ionicons";
@@ -8,6 +7,7 @@ import Accounts from "./components/accounts/Accounts";
 import Settings from "./components/settings/Settings";
 import Statistics from "./components/statistics/Statistics";
 import FormStack from "./components/form/FormStack";
+import { SCREENS } from "./constants/constants";
 
 export default function App() {
   const Tab = createBottomTabNavigator();
@@ -15,7 +15,7 @@ export default function App() {
     <NavigationContainer>
       <Tab.Navigator screenOptions={{ headerShown: false }}>
         <Tab.Screen
-          name="Home"
+          name={SCREENS.HOME}
           component={Home}
           options={{
             tabBarIcon: ({ color, size }) => (
@@ -25,7 +25,7 @@ export default function App() {
           }}
         />
         <Tab.Screen
-          name="Statistics"
+          name={SCREENS.STATISTICS}
           component={Statistics}
           options={{
             tabBarIcon: ({ color, size }) => (
@@ -35,7 +35,7 @@ export default function App() {
           }}
         />
         <Tab.Screen
-          name="FormStack"
+          name={SCREENS.FORMSTACK}
           component={FormStack}
           options={{
             tabBarIcon: () => (
@@ -48,7 +48,7 @@ export default function App() {
           }}
         />
         <Tab.Screen
-          name="Accounts"
+          name={SCREENS.ACCOUNTS}
           component={Accounts}
           options={{
             tabBarIcon: ({ color, size }) => (
@@ -58,7 +58,7 @@ export default function App() {
           }}
         />
         <Tab.Screen
-          name="Settings"
+          name={SCREENS.SETTINGS}
           component={Settings}
           options={{
             tabBarIcon: ({ color, size }) => (
@@ -85,6 +85,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#FF6347",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 20, // Adjust position
+    marginBottom: 20,
   },
 });
