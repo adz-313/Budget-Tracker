@@ -1,17 +1,16 @@
-import * as React from "react";
+import { useContext, createContext } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Icon from "react-native-vector-icons/Ionicons";
-import Home from "./home/Home";
-import Accounts from "./accounts/Accounts";
-import Settings from "./settings/Settings";
-import Statistics from "./statistics/Statistics";
-import Form from "./form/Form";
-
-const Tab = createBottomTabNavigator();
+import Home from "./components/home/Home";
+import Accounts from "./components/accounts/Accounts";
+import Settings from "./components/settings/Settings";
+import Statistics from "./components/statistics/Statistics";
+import FormStack from "./components/form/FormStack";
 
 export default function App() {
+  const Tab = createBottomTabNavigator();
   return (
     <NavigationContainer>
       <Tab.Navigator screenOptions={{ headerShown: false }}>
@@ -36,8 +35,8 @@ export default function App() {
           }}
         />
         <Tab.Screen
-          name="Form"
-          component={Form}
+          name="FormStack"
+          component={FormStack}
           options={{
             tabBarIcon: () => (
               <View style={styles.middleButton}>
