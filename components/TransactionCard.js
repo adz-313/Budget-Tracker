@@ -3,14 +3,14 @@ import { ScrollView, View, Text, StyleSheet, Dimensions } from "react-native";
 
 const { width } = Dimensions.get("window");
 
-const TransactionCard = ({ price, name, date }) => {
+const TransactionCard = ({ amount, date, title }) => {
   return (
     <View style={styles.card}>
       <View style={styles.header}>
-        <Text style={styles.price}>{price}</Text>
-        <Text style={styles.name}>{name}</Text>
+        <Text style={styles.price}>{amount}</Text>
+        <Text style={styles.name}>{title}</Text>
       </View>
-      <Text style={styles.dateTime}>{`${date}`}</Text>
+      <Text style={styles.dateTime}>{date.toLocaleString()}</Text>
     </View>
   );
 };
