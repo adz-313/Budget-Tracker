@@ -2,6 +2,7 @@ import React from "react";
 import { TouchableOpacity } from "react-native";
 import { View, Text, FlatList, StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
+import { SCREENS } from "../../constants/constants";
 
 const paymentOptions = [
   {
@@ -25,11 +26,11 @@ const paymentOptions = [
 ];
 
 export default function AccountsScreen({ route, navigation }) {
-  const { handleInputChange } = route.params;
+  const { handleInputChange, inputName } = route.params;
   const PaymentOptionItem = ({ item, handleInputChange }) => {
     function handleItemPress() {
-      handleInputChange("account", item.name);
-      navigation.navigate("Form");
+      handleInputChange(inputName, item.name);
+      navigation.navigate(SCREENS.NEW_TRANSACTION);
     }
     return (
       <TouchableOpacity onPress={() => handleItemPress()}>
@@ -54,6 +55,7 @@ export default function AccountsScreen({ route, navigation }) {
           key={item.id}
           item={item}
           handleInputChange={handleInputChange}
+          inputName={inputName}
         />
       ))}
     </View>
@@ -68,6 +70,7 @@ export default function AccountsScreen({ route, navigation }) {
             category={item.category}
             data={item.data}
             handleInputChange={handleInputChange}
+            inputName={inputName}
           />
         )}
         keyExtractor={(item) => item.category}

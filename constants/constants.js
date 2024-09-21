@@ -18,3 +18,5 @@ export const SCREENS = {
   CATEGORIES: "Categories",
   NEW_TRANSACTION: "NewTransaction",
 };
+
+export const EXPENDITURE_FORM = {};

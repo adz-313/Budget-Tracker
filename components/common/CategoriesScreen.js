@@ -2,7 +2,7 @@ import React from "react";
 import { TouchableOpacity } from "react-native";
 import { View, Text, StyleSheet, FlatList } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
-import { ICONS } from "../../constants/constants";
+import { ICONS, SCREENS } from "../../constants/constants";
 
 const categories = [
   { id: "1", name: "Groceries", icon: ICONS.CART },
@@ -18,7 +18,7 @@ const categories = [
 const CategoryGridItem = ({ navigation, item, handleInputChange }) => {
   function handleItemPress() {
     handleInputChange("category", item.name);
-    navigation.navigate("Form");
+    navigation.navigate(SCREENS.NEW_TRANSACTION);
   }
   return (
     <TouchableOpacity style={styles.gridItem} onPress={() => handleItemPress()}>
