@@ -114,7 +114,7 @@ export default function FormScreen({ route, navigation }) {
       {transactionType === TRANSACTION_TYPES.INCOME && (
         <IncomeForm
           navigation={navigation}
-          form={expenditureForm}
+          form={incomeForm}
           handleInputChange={handleInputChange}
           storeData
         />
@@ -122,7 +122,7 @@ export default function FormScreen({ route, navigation }) {
       {transactionType === TRANSACTION_TYPES.TRANSFER && (
         <TransferForm
           navigation={navigation}
-          form={expenditureForm}
+          form={transferForm}
           handleInputChange={handleInputChange}
           storeData
         />

@@ -63,6 +63,7 @@ export default function TransferForm({ form, handleInputChange, navigation }) {
           onPress={() =>
             navigation.navigate(SCREENS.ACCOUNTS, {
               handleInputChange: handleInputChange,
+              inputName: "fromAccount",
             })
           }
           style={styles.inputWrapper}
@@ -84,6 +85,7 @@ export default function TransferForm({ form, handleInputChange, navigation }) {
           onPress={() =>
             navigation.navigate(SCREENS.ACCOUNTS, {
               handleInputChange: handleInputChange,
+              inputName: "toAccount",
             })
           }
           style={styles.inputWrapper}

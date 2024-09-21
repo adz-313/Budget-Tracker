@@ -88,6 +88,7 @@ export default function ExpenditureForm({
           onPress={() =>
             navigation.navigate(SCREENS.ACCOUNTS, {
               handleInputChange: handleInputChange,
+              inputName: "account",
             })
           }
           style={styles.inputWrapper}

@@ -84,6 +84,7 @@ export default function IncomeForm({ form, handleInputChange, navigation }) {
           onPress={() =>
             navigation.navigate(SCREENS.ACCOUNTS, {
               handleInputChange: handleInputChange,
+              inputName: "account",
             })
           }
           style={styles.inputWrapper}
