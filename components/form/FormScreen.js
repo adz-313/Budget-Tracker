@@ -16,7 +16,7 @@ import { v4 as uuidv4 } from "uuid";
 import TransactionTypeButtonGroup from "./TransactionTypeButtonGroup";
 import { TRANSACTION_TYPES } from "../../constants/constants";
 
-export default function FormScreen({ route, navigation }) {
+export default function FormScreen({ route, navigation, setNewId }) {
   const [transactionType, setTransactionType] = useState("Expenditure");
   const [expenditureForm, setExpenditureForm] = useState({
     amount: "",
@@ -87,10 +87,11 @@ export default function FormScreen({ route, navigation }) {
 
   const storeData = async () => {
     try {
-      await AsyncStorage.setItem(uuidv4(), JSON.stringify(expenditureForm));
-      alert("Success", "Data stored successfully!");
+      const id = expenditureForm.date + "_" + uuidv4();
+      await AsyncStorage.setItem(id, JSON.stringify(expenditureForm));
+      setNewId(id);
+      console.log("called setNewId");
       resetForm();
-
       navigation.navigate("Home");
     } catch (error) {
       alert("Error", "Failed to store the data");

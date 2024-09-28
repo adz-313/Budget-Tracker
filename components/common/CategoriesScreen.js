@@ -2,18 +2,8 @@ import React from "react";
 import { TouchableOpacity } from "react-native";
 import { View, Text, StyleSheet, FlatList } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
-import { ICONS, SCREENS } from "../../constants/constants";
-
-const categories = [
-  { id: "1", name: "Groceries", icon: ICONS.CART },
-  { id: "2", name: "Transport", icon: "car-outline" },
-  { id: "3", name: "Entertainment", icon: "tv-outline" },
-  { id: "4", name: "Shopping", icon: "shirt-outline" },
-  { id: "5", name: "Health", icon: "medkit-outline" },
-  { id: "6", name: "Education", icon: "school-outline" },
-  { id: "7", name: "Travel", icon: "airplane-outline" },
-  { id: "8", name: "Dining", icon: "fast-food-outline" },
-];
+import { SCREENS } from "../../constants/constants";
+import { categories } from "../../constants/categories";
 
 const CategoryGridItem = ({ navigation, item, handleInputChange }) => {
   function handleItemPress() {
