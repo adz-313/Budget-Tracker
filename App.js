@@ -8,22 +8,25 @@ import Settings from "./components/settings/Settings";
 import Statistics from "./components/statistics/Statistics";
 import FormStack from "./components/form/FormStack";
 import { SCREENS } from "./constants/constants";
+import { useState } from "react";
 
 export default function App() {
+  [newId, setNewId] = useState(null);
   const Tab = createBottomTabNavigator();
   return (
     <NavigationContainer>
-      <Tab.Navigator screenOptions={{ headerShown: false }}>
+      <Tab.Navigator>
         <Tab.Screen
           name={SCREENS.HOME}
-          component={Home}
           options={{
             tabBarIcon: ({ color, size }) => (
               <Icon name="home-outline" color={color} size={size} />
             ),
             tabBarButton: (props) => <TouchableOpacity {...props} />,
           }}
-        />
+        >
+          {(props) => <Home {...props} newId={newId} setNewId={setNewId} />}
+        </Tab.Screen>
         <Tab.Screen
           name={SCREENS.STATISTICS}
           component={Statistics}
@@ -36,7 +39,6 @@ export default function App() {
         />
         <Tab.Screen
           name={SCREENS.FORMSTACK}
-          component={FormStack}
           options={{
             tabBarIcon: () => (
               <View style={styles.middleButton}>
@@ -45,8 +47,11 @@ export default function App() {
             ),
             tabBarButton: (props) => <TouchableOpacity {...props} />,
             tabBarLabel: () => null,
+            headerShown: false,
           }}
-        />
+        >
+          {(props) => <FormStack setNewId={setNewId} />}
+        </Tab.Screen>
         <Tab.Screen
           name={SCREENS.ACCOUNTS}
           component={Accounts}

@@ -10,7 +10,7 @@ const TransactionCard = ({ amount, date, title }) => {
         <Text style={styles.price}>{amount}</Text>
         <Text style={styles.name}>{title}</Text>
       </View>
-      <Text style={styles.dateTime}>{date.toLocaleString()}</Text>
+      <Text style={styles.dateTime}>{date}</Text>
     </View>
   );
 };

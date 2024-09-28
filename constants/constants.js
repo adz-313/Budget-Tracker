@@ -20,3 +20,10 @@ export const SCREENS = {
 };
 
 export const EXPENDITURE_FORM = {};
+
+export const DATE_PERIODS = {
+  TODAY: "Today",
+  WEEK: "Week",
+  MONTH: "Month",
+  YEAR: "Year",
+};
