@@ -1,6 +1,8 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { TRANSACTION_TYPES } from "../../constants/constants";
 
 export default function TransactionTypeButtonGroup({
+  resetForm,
   transactionType,
   setTransactionType,
 }) {
@@ -9,14 +11,18 @@ export default function TransactionTypeButtonGroup({
       <TouchableOpacity
         style={[
           styles.button,
-          transactionType === "Income" && styles.selectedButton,
+          transactionType === TRANSACTION_TYPES.INCOME && styles.selectedButton,
         ]}
-        onPress={() => setTransactionType("Income")}
+        onPress={() => {
+          resetForm();
+          setTransactionType(TRANSACTION_TYPES.INCOME);
+        }}
       >
         <Text
           style={[
             styles.buttonText,
-            transactionType === "Income" && styles.selectedButtontext,
+            transactionType === TRANSACTION_TYPES.INCOME &&
+              styles.selectedButtontext,
           ]}
         >
           Income
@@ -25,14 +31,19 @@ export default function TransactionTypeButtonGroup({
       <TouchableOpacity
         style={[
           styles.button,
-          transactionType === "Expenditure" && styles.selectedButton,
+          transactionType === TRANSACTION_TYPES.EXPENDITURE &&
+            styles.selectedButton,
         ]}
-        onPress={() => setTransactionType("Expenditure")}
+        onPress={() => {
+          resetForm();
+          setTransactionType(TRANSACTION_TYPES.EXPENDITURE);
+        }}
       >
         <Text
           style={[
             styles.buttonText,
-            transactionType === "Expenditure" && styles.selectedButtontext,
+            transactionType === TRANSACTION_TYPES.EXPENDITURE &&
+              styles.selectedButtontext,
           ]}
         >
           Expenditure
@@ -41,14 +52,19 @@ export default function TransactionTypeButtonGroup({
       <TouchableOpacity
         style={[
           styles.button,
-          transactionType === "Transfer" && styles.selectedButton,
+          transactionType === TRANSACTION_TYPES.TRANSFER &&
+            styles.selectedButton,
         ]}
-        onPress={() => setTransactionType("Transfer")}
+        onPress={() => {
+          resetForm();
+          setTransactionType(TRANSACTION_TYPES.TRANSFER);
+        }}
       >
         <Text
           style={[
             styles.buttonText,
-            transactionType === "Transfer" && styles.selectedButtontext,
+            transactionType === TRANSACTION_TYPES.TRANSFER &&
+              styles.selectedButtontext,
           ]}
         >
           Transfer

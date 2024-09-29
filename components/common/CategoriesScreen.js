@@ -1,18 +1,22 @@
-import React from "react";
 import { TouchableOpacity } from "react-native";
 import { View, Text, StyleSheet, FlatList } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
-import { SCREENS } from "../../constants/constants";
-import { categories } from "../../constants/categories";
+import { FORM_FIELDS, SCREENS } from "../../constants/constants";
+import { getCategories } from "../../constants/categories";
 
 const CategoryGridItem = ({ navigation, item, handleInputChange }) => {
   function handleItemPress() {
-    handleInputChange("category", item.name);
+    handleInputChange(FORM_FIELDS.CATEGORY, item.name);
     navigation.navigate(SCREENS.NEW_TRANSACTION);
   }
+
   return (
     <TouchableOpacity style={styles.gridItem} onPress={() => handleItemPress()}>
-      <View style={styles.iconWrapper}>
+      <View
+        style={
+          item.icon !== null ? styles.iconWrapper : styles.blankIconWrapper
+        }
+      >
         <Icon name={item.icon} size={20} color="#FF6347" />
       </View>
       <Text style={styles.label}>
@@ -22,12 +26,17 @@ const CategoryGridItem = ({ navigation, item, handleInputChange }) => {
   );
 };
 
-export default function CategoriesScreen({ route, navigation }) {
-  const { handleInputChange } = route.params;
+export default function CategoriesScreen({
+  route,
+  navigation,
+  transactionType,
+  handleInputChange,
+}) {
   return (
     <View style={styles.container}>
+      <Text style={styles.categoryHeading}>{transactionType}</Text>
       <FlatList
-        data={categories}
+        data={getCategories(transactionType)}
         renderItem={({ item }) => (
           <CategoryGridItem
             navigation={navigation}
@@ -49,6 +58,11 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: "#fff",
   },
+  categoryHeading: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
   gridItem: {
     flex: 1,
     justifyContent: "center",
@@ -61,6 +75,14 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderColor: "#FF9986",
     borderWidth: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  blankIconWrapper: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 10,

@@ -3,30 +3,14 @@ import { TouchableOpacity } from "react-native";
 import { View, Text, FlatList, StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { SCREENS } from "../../constants/constants";
+import { accounts } from "../../constants/accounts";
 
-const paymentOptions = [
-  {
-    category: "Cash",
-    data: [{ id: "1", name: "Cash in Hand", icon: "cash-outline" }],
-  },
-  {
-    category: "Bank Accounts",
-    data: [
-      { id: "2", name: "Checking Account", icon: "wallet-outline" },
-      { id: "3", name: "Savings Account", icon: "home-outline" },
-    ],
-  },
-  {
-    category: "Cards",
-    data: [
-      { id: "4", name: "Visa Credit Card", icon: "card-outline" },
-      { id: "5", name: "Mastercard Debit Card", icon: "card-outline" },
-    ],
-  },
-];
-
-export default function AccountsScreen({ route, navigation }) {
-  const { handleInputChange, inputName } = route.params;
+export default function AccountsScreen({
+  route,
+  navigation,
+  handleInputChange,
+}) {
+  const { inputName } = route.params;
   const PaymentOptionItem = ({ item, handleInputChange }) => {
     function handleItemPress() {
       handleInputChange(inputName, item.name);
@@ -64,7 +48,7 @@ export default function AccountsScreen({ route, navigation }) {
   return (
     <View style={styles.container}>
       <FlatList
-        data={paymentOptions}
+        data={accounts}
         renderItem={({ item }) => (
           <PaymentCategory
             category={item.category}

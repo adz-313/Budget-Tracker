@@ -1,4 +1,4 @@
-import { View, TouchableOpacity, StyleSheet } from "react-native";
+import { View, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Icon from "react-native-vector-icons/Ionicons";
@@ -11,7 +11,9 @@ import { SCREENS } from "./constants/constants";
 import { useState } from "react";
 
 export default function App() {
-  [newId, setNewId] = useState(null);
+  const [newId, setNewId] = useState(null);
+  const [isFormTouched, setIsFormTouched] = useState(false);
+
   const Tab = createBottomTabNavigator();
   return (
     <NavigationContainer>
@@ -25,18 +27,33 @@ export default function App() {
             tabBarButton: (props) => <TouchableOpacity {...props} />,
           }}
         >
-          {(props) => <Home {...props} newId={newId} setNewId={setNewId} />}
+          {(props) => (
+            <Home
+              {...props}
+              newId={newId}
+              setNewId={setNewId}
+              isFormTouched={isFormTouched}
+              setIsFormTouched={setIsFormTouched}
+            />
+          )}
         </Tab.Screen>
         <Tab.Screen
           name={SCREENS.STATISTICS}
-          component={Statistics}
           options={{
             tabBarIcon: ({ color, size }) => (
               <Icon name="stats-chart-outline" color={color} size={size} />
             ),
             tabBarButton: (props) => <TouchableOpacity {...props} />,
           }}
-        />
+        >
+          {(props) => (
+            <Statistics
+              {...props}
+              isFormTouched={isFormTouched}
+              setIsFormTouched={setIsFormTouched}
+            />
+          )}
+        </Tab.Screen>
         <Tab.Screen
           name={SCREENS.FORMSTACK}
           options={{
@@ -50,39 +67,55 @@ export default function App() {
             headerShown: false,
           }}
         >
-          {(props) => <FormStack setNewId={setNewId} />}
+          {(props) => (
+            <FormStack
+              {...props}
+              setNewId={setNewId}
+              isFormTouched={isFormTouched}
+              setIsFormTouched={setIsFormTouched}
+            />
+          )}
         </Tab.Screen>
         <Tab.Screen
           name={SCREENS.ACCOUNTS}
-          component={Accounts}
           options={{
             tabBarIcon: ({ color, size }) => (
               <Icon name="wallet-outline" color={color} size={size} />
             ),
             tabBarButton: (props) => <TouchableOpacity {...props} />,
           }}
-        />
+        >
+          {(props) => (
+            <Accounts
+              {...props}
+              isFormTouched={isFormTouched}
+              setIsFormTouched={setIsFormTouched}
+            />
+          )}
+        </Tab.Screen>
         <Tab.Screen
           name={SCREENS.SETTINGS}
-          component={Settings}
           options={{
             tabBarIcon: ({ color, size }) => (
               <Icon name="settings-outline" color={color} size={size} />
             ),
             tabBarButton: (props) => <TouchableOpacity {...props} />,
           }}
-        />
+        >
+          {(props) => (
+            <Settings
+              {...props}
+              isFormTouched={isFormTouched}
+              setIsFormTouched={setIsFormTouched}
+            />
+          )}
+        </Tab.Screen>
       </Tab.Navigator>
     </NavigationContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  center: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
   middleButton: {
     width: 60,
     height: 60,

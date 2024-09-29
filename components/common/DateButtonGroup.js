@@ -1,13 +1,7 @@
-// src/components/ButtonGroup.js
-import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { DATE_PERIODS } from "../../constants/constants";
 
 const DateButtonGroup = ({ dateSelection, setDateSelection }) => {
-  // State to track the selected button
-  // const [selected, setSelected] = useState("Today");
-
-  // Button labels
   const buttons = [
     DATE_PERIODS.TODAY,
     DATE_PERIODS.WEEK,
@@ -28,7 +22,7 @@ const DateButtonGroup = ({ dateSelection, setDateSelection }) => {
           <Text
             style={[
               styles.text,
-              dateSelection === button && styles.selectedText, // Apply underline to selected button
+              dateSelection === button && styles.selectedText,
             ]}
           >
             {button}
@@ -45,14 +39,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     backgroundColor: "#fff",
     justifyContent: "center",
-    // marginHorizontal: 10,
-    // marginTop: 10,
     paddingTop: 5,
   },
   button: {
     paddingHorizontal: 20,
-    // borderBottomWidth: 1,
-    // borderColor: "#bbb",
     paddingVertical: 10,
   },
   selectedButton: {

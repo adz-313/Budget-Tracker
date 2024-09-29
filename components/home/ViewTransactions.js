@@ -1,7 +1,8 @@
-import { SectionList, View, Text, StyleSheet, ScrollView } from "react-native";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { categories } from "../../constants/categories";
 import ViewTotalTransactions from "./ViewTotalTransactions";
+import { TRANSACTION_TYPES } from "../../constants/constants";
 
 const TransactionCard = ({ date, transactions, totalAmount }) => (
   <View style={styles.card}>
@@ -14,7 +15,7 @@ const TransactionCard = ({ date, transactions, totalAmount }) => (
         <View style={styles.iconWrapper}>
           <Icon
             name={
-              categories.find(
+              categories[TRANSACTION_TYPES.EXPENDITURE].find(
                 (category) => category.name === transaction.category
               ).icon
             }

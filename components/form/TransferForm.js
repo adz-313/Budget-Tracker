@@ -9,14 +9,14 @@ import {
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Icon from "react-native-vector-icons/Ionicons";
-import { SCREENS } from "../../constants/constants";
+import { SCREENS, FORM_FIELDS } from "../../constants/constants";
 
 export default function TransferForm({ form, handleInputChange, navigation }) {
   const [show, setShow] = useState(false);
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate || form.date;
     setShow(false);
-    handleInputChange("date", currentDate);
+    handleInputChange(FORM_FIELDS.DATE, currentDate);
   };
 
   const showDatepicker = () => {
@@ -32,8 +32,10 @@ export default function TransferForm({ form, handleInputChange, navigation }) {
           style={styles.input}
           placeholder="Enter amount"
           keyboardType="numeric"
-          value={form.amount}
-          onChangeText={(value) => handleInputChange("amount", value)}
+          value={form[FORM_FIELDS.AMOUNT]}
+          onChangeText={(value) =>
+            handleInputChange(FORM_FIELDS.AMOUNT, Number.parseInt(value))
+          }
         />
       </View>
       {/* Date */}
@@ -44,26 +46,26 @@ export default function TransferForm({ form, handleInputChange, navigation }) {
           style={styles.input}
           onPress={() => showDatepicker()}
         >
-          {form.date.toLocaleDateString()}
+          {form[FORM_FIELDS.DATE].toLocaleDateString()}
         </TextInput>
       </View>
       {show && (
         <DateTimePicker
-          value={form.date}
+          value={form[FORM_FIELDS.DATE]}
           mode="date"
           onChange={onChange}
           display="inline"
         />
       )}
 
-      {/* Account */}
+      {/* From Account */}
       <View style={styles.formGroup}>
         <Text style={styles.label}>From</Text>
         <TouchableOpacity
           onPress={() =>
             navigation.navigate(SCREENS.ACCOUNTS, {
               handleInputChange: handleInputChange,
-              inputName: "fromAccount",
+              inputName: FORM_FIELDS.FROM_ACCOUNT,
             })
           }
           style={styles.inputWrapper}
@@ -72,20 +74,20 @@ export default function TransferForm({ form, handleInputChange, navigation }) {
             style={styles.nestedInput}
             placeholder="Select an Account"
             editable={false}
-            value={form.fromAccount}
+            value={form[FORM_FIELDS.FROM_ACCOUNT]}
           />
           <Icon name="chevron-forward-outline" size={18} color="#666" />
         </TouchableOpacity>
       </View>
 
-      {/* Account */}
+      {/* To Account */}
       <View style={styles.formGroup}>
         <Text style={styles.label}>To</Text>
         <TouchableOpacity
           onPress={() =>
             navigation.navigate(SCREENS.ACCOUNTS, {
               handleInputChange: handleInputChange,
-              inputName: "toAccount",
+              inputName: FORM_FIELDS.TO_ACCOUNT,
             })
           }
           style={styles.inputWrapper}
@@ -94,7 +96,7 @@ export default function TransferForm({ form, handleInputChange, navigation }) {
             style={styles.nestedInput}
             placeholder="Select an Account"
             editable={false}
-            value={form.toAccount}
+            value={form[FORM_FIELDS.TO_ACCOUNT]}
           />
           <Icon name="chevron-forward-outline" size={18} color="#666" />
         </TouchableOpacity>
@@ -106,8 +108,8 @@ export default function TransferForm({ form, handleInputChange, navigation }) {
         <TextInput
           style={styles.input}
           placeholder="Source (optional)"
-          value={form.title}
-          onChangeText={(value) => handleInputChange("title", value)}
+          value={form[FORM_FIELDS.TITLE]}
+          onChangeText={(value) => handleInputChange(FORM_FIELDS.TITLE, value)}
         />
       </View>
 
@@ -117,8 +119,8 @@ export default function TransferForm({ form, handleInputChange, navigation }) {
         <TextInput
           style={styles.textArea}
           placeholder="Add a note (optional)"
-          value={form.note}
-          onChangeText={(value) => handleInputChange("note", value)}
+          value={form[FORM_FIELDS.NOTE]}
+          onChangeText={(value) => handleInputChange(FORM_FIELDS.NOTE, value)}
           multiline={true}
           numberOfLines={4}
         />
@@ -159,14 +161,6 @@ const styles = StyleSheet.create({
     borderBottomColor: "#ccc",
     paddingVertical: 8,
     fontSize: 16,
-  },
-  dateInput: {
-    fontSize: 16,
-  },
-  icon: {
-    marginLeft: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
   },
   textArea: {
     fontSize: 16,
