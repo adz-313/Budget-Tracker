@@ -1,11 +1,10 @@
-import { useState } from "react";
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  Button,
+  Alert,
 } from "react-native";
 import ExpenditureForm from "./ExpenditureForm";
 import IncomeForm from "./IncomeForm";
@@ -14,93 +13,66 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import "react-native-get-random-values";
 import { v4 as uuidv4 } from "uuid";
 import TransactionTypeButtonGroup from "./TransactionTypeButtonGroup";
-import { TRANSACTION_TYPES } from "../../constants/constants";
+import {
+  FORM_FIELDS,
+  SCREENS,
+  TRANSACTION_TYPES,
+} from "../../constants/constants";
 
-export default function FormScreen({ route, navigation, setNewId }) {
-  const [transactionType, setTransactionType] = useState("Expenditure");
-  const [expenditureForm, setExpenditureForm] = useState({
-    amount: "",
-    date: new Date(),
-    category: "",
-    account: "",
-    title: "",
-    recipient: "",
-    note: "",
-  });
-
-  const [incomeForm, setIncomeForm] = useState({
-    amount: "",
-    date: new Date(),
-    category: "",
-    account: "",
-    title: "",
-    note: "",
-  });
-
-  const [transferForm, setTransferForm] = useState({
-    amount: "",
-    date: new Date(),
-    fromAccount: "",
-    toAccount: "",
-    title: "",
-    recipient: "",
-    note: "",
-  });
-
-  const handleInputChange = (name, value) => {
-    if (transactionType === TRANSACTION_TYPES.EXPENDITURE)
-      setExpenditureForm({ ...expenditureForm, [name]: value });
-    else if (transactionType === TRANSACTION_TYPES.INCOME)
-      setIncomeForm({ ...incomeForm, [name]: value });
-    else if (transactionType === TRANSACTION_TYPES.TRANSFER)
-      setTransferForm({ ...transferForm, [name]: value });
-  };
-
-  function resetForm() {
-    setExpenditureForm({
-      amount: "",
-      date: new Date(),
-      category: "",
-      account: "",
-      title: "",
-      recipient: "",
-      note: "",
-    });
-    setIncomeForm({
-      amount: "",
-      date: new Date(),
-      category: "",
-      account: "",
-      title: "",
-      note: "",
-    });
-    setTransferForm({
-      amount: "",
-      date: new Date(),
-      fromAccount: "",
-      toAccount: "",
-      title: "",
-      recipient: "",
-      note: "",
-    });
-  }
-
-  const storeData = async () => {
+export default function FormScreen({
+  route,
+  navigation,
+  setNewId,
+  incomeForm,
+  expenditureForm,
+  transferForm,
+  handleInputChange,
+  resetForm,
+  transactionType,
+  setTransactionType,
+}) {
+  const submitForm = async () => {
     try {
-      const id = expenditureForm.date + "_" + uuidv4();
-      await AsyncStorage.setItem(id, JSON.stringify(expenditureForm));
+      var id = null;
+      if (transactionType === TRANSACTION_TYPES.EXPENDITURE) {
+        id = await storeData(expenditureForm, "Expenditure");
+      } else if (transactionType === TRANSACTION_TYPES.INCOME) {
+        id = await storeData(incomeForm, "Income");
+      } else if (transactionType === TRANSACTION_TYPES.TRANSFER) {
+        id = await storeData(transferForm, "Transfer");
+      }
+      if (id === null) return;
       setNewId(id);
-      console.log("called setNewId");
       resetForm();
-      navigation.navigate("Home");
+      navigation.navigate(SCREENS.HOME);
     } catch (error) {
       alert("Error", "Failed to store the data");
     }
   };
 
+  async function storeData(form, placeholderTitle) {
+    if (
+      form[FORM_FIELDS.AMOUNT] === "" ||
+      form[FORM_FIELDS.CATEGORY] === "" ||
+      form[FORM_FIELDS.ACCOUNT] === ""
+    ) {
+      Alert.alert("Error", "Please fill the required fields first.");
+      return null;
+    }
+
+    if (form[FORM_FIELDS.TITLE] === "") {
+      form[FORM_FIELDS.TITLE] = placeholderTitle;
+    }
+
+    const id = form[FORM_FIELDS.DATE] + "_" + uuidv4();
+    await AsyncStorage.setItem(id, JSON.stringify(form));
+    return id;
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <TransactionTypeButtonGroup
+        resetForm={resetForm}
         transactionType={transactionType}
         setTransactionType={setTransactionType}
       />
@@ -109,7 +81,6 @@ export default function FormScreen({ route, navigation, setNewId }) {
           navigation={navigation}
           form={expenditureForm}
           handleInputChange={handleInputChange}
-          storeData
         />
       )}
       {transactionType === TRANSACTION_TYPES.INCOME && (
@@ -117,7 +88,6 @@ export default function FormScreen({ route, navigation, setNewId }) {
           navigation={navigation}
           form={incomeForm}
           handleInputChange={handleInputChange}
-          storeData
         />
       )}
       {transactionType === TRANSACTION_TYPES.TRANSFER && (
@@ -125,19 +95,31 @@ export default function FormScreen({ route, navigation, setNewId }) {
           navigation={navigation}
           form={transferForm}
           handleInputChange={handleInputChange}
-          storeData
         />
       )}
 
       <View style={styles.buttonGroup}>
-        <TouchableOpacity style={styles.button} onPress={() => storeData()}>
+        <TouchableOpacity style={styles.button} onPress={() => submitForm()}>
           <Text>Save</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.button}
           onPress={() => {
-            resetForm();
-            navigation.navigate("Home");
+            Alert.alert(
+              "Unsaved Changes",
+              "You have unsaved changes. Are you sure you want to leave the form?",
+              [
+                { text: "Cancel", style: "cancel", onPress: () => {} },
+                {
+                  text: "Leave",
+                  style: "destructive",
+                  onPress: () => {
+                    resetForm();
+                    navigation.navigate(SCREENS.HOME);
+                  },
+                },
+              ]
+            );
           }}
         >
           <Text>Discard</Text>

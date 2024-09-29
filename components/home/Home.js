@@ -1,14 +1,19 @@
 import { useCallback, useEffect, useState } from "react";
-import { SectionList, View, Text, StyleSheet, ScrollView } from "react-native";
+import { View, Text, StyleSheet, Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import DateButtonGroup from "../common/DateButtonGroup";
 import ViewTransactions from "./ViewTransactions";
-import { DATE_PERIODS } from "../../constants/constants";
-import ViewTotalTransactions from "./ViewTotalTransactions";
+import { DATE_PERIODS, SCREENS } from "../../constants/constants";
 
-export default function Home({ route, navigation, newId, setNewId }) {
+export default function Home({
+  route,
+  navigation,
+  newId,
+  setNewId,
+  isFormTouched,
+  setIsFormTouched,
+}) {
   [dataState, setDataState] = useState([]);
   [currentDataState, setCurrentDataState] = useState([]);
   [keysState, setKeysState] = useState([]);
@@ -16,6 +21,33 @@ export default function Home({ route, navigation, newId, setNewId }) {
   [dateSelection, setDateSelection] = useState(DATE_PERIODS.TODAY);
   [totalExpenditure, setTotalExpenditure] = useState(0);
   [totalIncome, setTotalIncome] = useState(0);
+
+  // prevent going to this tab if the form content is changed
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("tabPress", (e) => {
+      if (!isFormTouched) {
+        return;
+      }
+      e.preventDefault();
+      Alert.alert(
+        "Unsaved Changes",
+        "You have unsaved changes. Are you sure you want to leave the form?",
+        [
+          { text: "Cancel", style: "cancel", onPress: () => {} },
+          {
+            text: "Leave",
+            style: "destructive",
+            onPress: () => {
+              setIsFormTouched(false);
+              navigation.navigate(SCREENS.HOME);
+            },
+          },
+        ]
+      );
+    });
+
+    return unsubscribe;
+  }, [navigation, isFormTouched, setIsFormTouched]);
 
   async function loadInitialData() {
     const allKeys = await AsyncStorage.getAllKeys();
@@ -39,14 +71,14 @@ export default function Home({ route, navigation, newId, setNewId }) {
       );
       if (existingGroup) {
         existingGroup.transactions.push(transaction);
-        existingGroup.totalAmount += Number.parseInt(transaction.amount);
+        existingGroup.totalAmount += transaction.amount;
       } else {
         allData.push({
           date: transaction.date,
           displayDate: transaction.displayDate,
           id: transaction.id,
           transactions: [transaction],
-          totalAmount: Number.parseInt(transaction.amount),
+          totalAmount: transaction.amount,
         });
       }
       return allData;
@@ -79,14 +111,14 @@ export default function Home({ route, navigation, newId, setNewId }) {
         displayDate: newTransaction.displayDate,
         transactions: [newTransaction],
         id: newTransaction.id,
-        totalAmount: Number.parseInt(newTransaction.amount),
+        totalAmount: newTransaction.amount,
       };
       var newDataState = [...dataState, newTransactionGroup];
       newDataState.sort((a, b) => new Date(b.date) - new Date(a.date));
       setDataState(newDataState);
     } else {
       transactionGroup.transactions.push(newTransaction);
-      transactionGroup.totalAmount += Number.parseInt(newTransaction.amount);
+      transactionGroup.totalAmount += newTransaction.amount;
 
       var filteredData = dataState.filter(
         (transaction) => transaction.displayDate !== newTransaction.displayDate
@@ -111,7 +143,6 @@ export default function Home({ route, navigation, newId, setNewId }) {
       );
     } else if (dateSelection === DATE_PERIODS.WEEK) {
       const getCurrentWeekRange = () => {
-        const today = new Date();
         const firstDayOfWeek = new Date(
           today.setDate(today.getDate() - today.getDay())
         );
@@ -125,33 +156,28 @@ export default function Home({ route, navigation, newId, setNewId }) {
         return { firstDayOfWeek, lastDayOfWeek };
       };
       const { firstDayOfWeek, lastDayOfWeek } = getCurrentWeekRange();
-
-      dateSelectedTransactions = dataState.filter((item) => {
-        const itemDate = new Date(item.date);
-        return itemDate >= firstDayOfWeek && itemDate <= lastDayOfWeek;
+      dateSelectedTransactions = dataState.filter((transactionGroup) => {
+        const date = new Date(transactionGroup.date);
+        return date >= firstDayOfWeek && date <= lastDayOfWeek;
       });
     } else if (dateSelection === DATE_PERIODS.MONTH) {
-      // const today = new Date();
-      const currentMonth = today.getMonth(); // Current month (0-11)
-      const currentYear = today.getFullYear(); // Current year
+      const currentMonth = today.getMonth();
+      const currentYear = today.getFullYear();
 
-      dateSelectedTransactions = dataState.filter((item) => {
-        const itemDate = new Date(item.date); // Convert the date string back to a Date object
-        const itemMonth = itemDate.getMonth(); // Get the month (0-11)
-        const itemYear = itemDate.getFullYear(); // Get the year
-        // Check if the item date is in the same month and year as today
-        return itemMonth === currentMonth && itemYear === currentYear;
+      dateSelectedTransactions = dataState.filter((transactionGroup) => {
+        const date = new Date(transactionGroup.date);
+        const month = date.getMonth();
+        const year = date.getFullYear();
+        return month === currentMonth && year === currentYear;
       });
     } else if (dateSelection === DATE_PERIODS.YEAR) {
-      const today = new Date();
-      const currentYear = today.getFullYear(); // Get the current year
+      const currentYear = today.getFullYear();
 
-      dateSelectedTransactions = dataState.filter((item) => {
-        const itemDate = new Date(item.date); // Convert the date string back to a Date object
-        const itemYear = itemDate.getFullYear(); // Extract the year
+      dateSelectedTransactions = dataState.filter((transactionGroup) => {
+        const date = new Date(transactionGroup.date);
+        const year = date.getFullYear();
 
-        // Check if the item's year is the same as the current year
-        return itemYear === currentYear;
+        return year === currentYear;
       });
     }
 
@@ -173,24 +199,17 @@ export default function Home({ route, navigation, newId, setNewId }) {
   async function deleteAllData() {
     const allKeys = await AsyncStorage.getAllKeys();
     console.log(allKeys);
-
-    await AsyncStorage.removeItem(
-      "Sat Sep 28 2024 20:11:23 GMT+0530_130c6ef4-7f8e-4cbc-a927-3898eebaa88d"
-    );
+    await AsyncStorage.multiRemove(allKeys);
   }
 
   const loadData = async () => {
-    console.log(isLoading);
-
     if (dataState.length === 0) {
       await loadInitialData();
-      console.log("initial load");
     } else {
       await loadNewData();
-      console.log("hot load");
     }
-    // await deleteAllData();
     setIsLoading(false);
+    // await deleteAllData();
   };
 
   useFocusEffect(

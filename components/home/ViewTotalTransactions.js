@@ -21,36 +21,36 @@ const ViewTotalTransactions = ({ totalExpenditure }) => {
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "row", // Align boxes horizontally
-    justifyContent: "space-between", // Space the boxes evenly
+    flexDirection: "row",
+    justifyContent: "space-between",
     padding: 10,
   },
   box: {
-    flex: 1, // Makes both boxes take up equal width
-    marginHorizontal: 5, // Small gap between the boxes
-    paddingVertical: 40, // Padding inside the boxes
-    paddingHorizontal: 25, // Padding inside the boxes
-    justifyContent: "center", // Center content vertically
-    alignItems: "center", // Center content horizontally
-    borderRadius: 10, // Rounded corners
+    flex: 1,
+    marginHorizontal: 5,
+    paddingVertical: 40,
+    paddingHorizontal: 25,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 10,
   },
   rightBox: {
-    backgroundColor: "#EF0107", // Red background for the left box
+    backgroundColor: "#EF0107",
   },
   leftBox: {
-    backgroundColor: "#4CBB17", // Green background for the right box
+    backgroundColor: "#4CBB17",
   },
   labelText: {
     position: "absolute",
     top: 10,
     left: 10,
-    color: "white", // White text for labels
+    color: "white",
     fontWeight: "bold",
     fontSize: 14,
   },
   mainText: {
     fontSize: 24,
-    color: "white", // White text for the main number
+    color: "white",
     fontWeight: "bold",
   },
 });

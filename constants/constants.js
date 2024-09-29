@@ -1,7 +1,3 @@
-export const ICONS = {
-  CART: "cart-outline",
-};
-
 export const TRANSACTION_TYPES = {
   INCOME: "Income",
   EXPENDITURE: "Expenditure",
@@ -19,7 +15,18 @@ export const SCREENS = {
   NEW_TRANSACTION: "NewTransaction",
 };
 
-export const EXPENDITURE_FORM = {};
+export const FORM_FIELDS = {
+  ID: "id",
+  AMOUNT: "amount",
+  DATE: "date",
+  CATEGORY: "category",
+  ACCOUNT: "account",
+  FROM_ACCOUNT: "fromAccount",
+  TO_ACCOUNT: "toAccount",
+  TITLE: "title",
+  RECIPIENT: "recipient",
+  NOTE: "note",
+};
 
 export const DATE_PERIODS = {
   TODAY: "Today",
