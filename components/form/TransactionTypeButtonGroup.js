@@ -5,18 +5,23 @@ export default function TransactionTypeButtonGroup({
   resetForm,
   transactionType,
   setTransactionType,
+  isInEditMode,
 }) {
   return (
     <View style={styles.buttonGroup}>
       <TouchableOpacity
         style={[
           styles.button,
+          isInEditMode && transactionType !== TRANSACTION_TYPES.INCOME
+            ? styles.disabledButton
+            : styles.unselectedButton,
           transactionType === TRANSACTION_TYPES.INCOME && styles.selectedButton,
         ]}
         onPress={() => {
           resetForm();
           setTransactionType(TRANSACTION_TYPES.INCOME);
         }}
+        disabled={isInEditMode && transactionType !== TRANSACTION_TYPES.INCOME}
       >
         <Text
           style={[
@@ -31,6 +36,9 @@ export default function TransactionTypeButtonGroup({
       <TouchableOpacity
         style={[
           styles.button,
+          isInEditMode && transactionType !== TRANSACTION_TYPES.EXPENDITURE
+            ? styles.disabledButton
+            : styles.unselectedButton,
           transactionType === TRANSACTION_TYPES.EXPENDITURE &&
             styles.selectedButton,
         ]}
@@ -38,6 +46,9 @@ export default function TransactionTypeButtonGroup({
           resetForm();
           setTransactionType(TRANSACTION_TYPES.EXPENDITURE);
         }}
+        disabled={
+          isInEditMode && transactionType !== TRANSACTION_TYPES.EXPENDITURE
+        }
       >
         <Text
           style={[
@@ -52,6 +63,9 @@ export default function TransactionTypeButtonGroup({
       <TouchableOpacity
         style={[
           styles.button,
+          isInEditMode && transactionType !== TRANSACTION_TYPES.TRANSFER
+            ? styles.disabledButton
+            : styles.unselectedButton,
           transactionType === TRANSACTION_TYPES.TRANSFER &&
             styles.selectedButton,
         ]}
@@ -59,6 +73,9 @@ export default function TransactionTypeButtonGroup({
           resetForm();
           setTransactionType(TRANSACTION_TYPES.TRANSFER);
         }}
+        disabled={
+          isInEditMode && transactionType !== TRANSACTION_TYPES.TRANSFER
+        }
       >
         <Text
           style={[
@@ -84,12 +101,17 @@ const styles = StyleSheet.create({
   button: {
     paddingVertical: 12,
     paddingHorizontal: 20,
-    backgroundColor: "#FF9986",
     borderRadius: 5,
     marginHorizontal: 5,
   },
   selectedButton: {
     backgroundColor: "#FF6347",
+  },
+  disabledButton: {
+    backgroundColor: "#d0d0d0",
+  },
+  unselectedButton: {
+    backgroundColor: "#FF9986",
   },
   selectedButtontext: {
     fontWeight: "bold",

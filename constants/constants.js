@@ -17,6 +17,7 @@ export const SCREENS = {
 
 export const FORM_FIELDS = {
   ID: "id",
+  TYPE: "type",
   AMOUNT: "amount",
   DATE: "date",
   CATEGORY: "category",

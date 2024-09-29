@@ -1,4 +1,5 @@
-import { View, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import { useState } from "react";
+import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Icon from "react-native-vector-icons/Ionicons";
@@ -8,10 +9,13 @@ import Settings from "./components/settings/Settings";
 import Statistics from "./components/statistics/Statistics";
 import FormStack from "./components/form/FormStack";
 import { SCREENS } from "./constants/constants";
-import { useState } from "react";
 
 export default function App() {
+  // used to hot load home page data
   const [newId, setNewId] = useState(null);
+
+  // used to edit existing data
+  const [existingTransactionId, setExistingTransactionId] = useState(null);
   const [isFormTouched, setIsFormTouched] = useState(false);
 
   const Tab = createBottomTabNavigator();
@@ -32,6 +36,8 @@ export default function App() {
               {...props}
               newId={newId}
               setNewId={setNewId}
+              existingTransactionId={existingTransactionId}
+              setExistingTransactionId={setExistingTransactionId}
               isFormTouched={isFormTouched}
               setIsFormTouched={setIsFormTouched}
             />
@@ -70,7 +76,10 @@ export default function App() {
           {(props) => (
             <FormStack
               {...props}
+              newId={newId}
               setNewId={setNewId}
+              existingTransactionId={existingTransactionId}
+              setExistingTransactionId={setExistingTransactionId}
               isFormTouched={isFormTouched}
               setIsFormTouched={setIsFormTouched}
             />

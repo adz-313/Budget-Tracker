@@ -1,57 +1,85 @@
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Image } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { categories } from "../../constants/categories";
 import ViewTotalTransactions from "./ViewTotalTransactions";
-import { TRANSACTION_TYPES } from "../../constants/constants";
+import { SCREENS } from "../../constants/constants";
+import { TouchableOpacity } from "react-native";
 
-const TransactionCard = ({ date, transactions, totalAmount }) => (
+const TransactionCard = ({
+  navigation,
+  setExistingTransactionId,
+  date,
+  transactions,
+  totalAmount,
+}) => (
   <View style={styles.card}>
     <View style={styles.groupHeader}>
       <Text style={styles.groupHeaderText}>{date}</Text>
       <Text style={styles.groupHeaderText}>{totalAmount} $</Text>
     </View>
     {transactions.map((transaction) => (
-      <View style={styles.transaction} key={transaction.id}>
-        <View style={styles.iconWrapper}>
-          <Icon
-            name={
-              categories[TRANSACTION_TYPES.EXPENDITURE].find(
-                (category) => category.name === transaction.category
-              ).icon
-            }
-            size={20}
-            color="#FF6347"
-          />
+      <TouchableOpacity
+        key={transaction.id}
+        onPress={() => {
+          setExistingTransactionId(transaction.id);
+          navigation.navigate(SCREENS.FORMSTACK);
+        }}
+      >
+        <View style={styles.transaction} key={transaction.id}>
+          <View style={styles.iconWrapper}>
+            <Icon
+              name={
+                categories[transaction.type].find(
+                  (category) => category.name === transaction.category
+                ).icon
+              }
+              size={20}
+              color="#FF6347"
+            />
+          </View>
+          <View style={styles.details}>
+            <Text style={styles.title}>{transaction.title}</Text>
+            <Text style={styles.account}>{transaction.account}</Text>
+          </View>
+          <Text style={styles.amount}>{transaction.amount} $</Text>
         </View>
-        <View style={styles.details}>
-          <Text style={styles.title}>{transaction.title}</Text>
-          <Text style={styles.account}>{transaction.account}</Text>
-        </View>
-        <Text style={styles.amount}>{transaction.amount} $</Text>
-      </View>
+      </TouchableOpacity>
     ))}
   </View>
 );
 
-export default function ViewTransactions({ dataState, totalExpenditure }) {
+export default function ViewTransactions({
+  navigation,
+  dataState,
+  setExistingTransactionId,
+  totalExpenditure,
+  totalIncome,
+}) {
   return (
     <View>
+      <ViewTotalTransactions
+        totalExpenditure={totalExpenditure}
+        totalIncome={totalIncome}
+      />
       {dataState.length === 0 ? (
         <View style={styles.center}>
-          <Text>This is Home screen.</Text>
+          <Text style={styles.emptyTransactionText}>No transactions today</Text>
         </View>
       ) : (
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollViewContent}
         >
-          <ViewTotalTransactions totalExpenditure={totalExpenditure} />
           {dataState.map((transaction) => (
             <TransactionCard
+              navigation={navigation}
+              setExistingTransactionId={setExistingTransactionId}
               key={transaction.id}
               date={transaction.displayDate}
               transactions={transaction.transactions}
-              totalAmount={transaction.totalAmount}
+              totalAmount={
+                transaction.totalIncome - transaction.totalExpenditure
+              }
             />
           ))}
         </ScrollView>
@@ -62,9 +90,13 @@ export default function ViewTransactions({ dataState, totalExpenditure }) {
 
 const styles = StyleSheet.create({
   center: {
-    flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    padding: 25,
+  },
+  emptyTransactionText: {
+    fontSize: 20,
+    marginTop: 100,
   },
   scrollView: {
     padding: 10,
