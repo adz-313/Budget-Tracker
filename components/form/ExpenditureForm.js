@@ -36,10 +36,11 @@ export default function ExpenditureForm({
           style={styles.input}
           placeholder="Enter amount"
           keyboardType="numeric"
-          value={form[FORM_FIELDS.AMOUNT]}
-          onChangeText={(value) =>
-            handleInputChange(FORM_FIELDS.AMOUNT, Number.parseInt(value))
-          }
+          value={form[FORM_FIELDS.AMOUNT].toString()}
+          onChangeText={(value) => {
+            if (value === "") handleInputChange(FORM_FIELDS.AMOUNT, value);
+            else handleInputChange(FORM_FIELDS.AMOUNT, Number.parseInt(value));
+          }}
         />
       </View>
       {/* Date */}

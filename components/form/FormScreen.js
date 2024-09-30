@@ -30,6 +30,10 @@ export default function FormScreen({
   resetForm,
   transactionType,
   setTransactionType,
+  isInEditMode,
+  setIsInEditMode,
+  deleteData,
+  setExistingTransactionId,
 }) {
   const submitForm = async () => {
     try {
@@ -51,22 +55,41 @@ export default function FormScreen({
   };
 
   async function storeData(form, placeholderTitle) {
-    if (
-      form[FORM_FIELDS.AMOUNT] === "" ||
-      form[FORM_FIELDS.CATEGORY] === "" ||
-      form[FORM_FIELDS.ACCOUNT] === ""
-    ) {
-      Alert.alert("Error", "Please fill the required fields first.");
-      return null;
+    switch (form.type) {
+      case TRANSACTION_TYPES.EXPENDITURE:
+      case TRANSACTION_TYPES.INCOME:
+        if (
+          form[FORM_FIELDS.AMOUNT] === "" ||
+          form[FORM_FIELDS.CATEGORY] === "" ||
+          form[FORM_FIELDS.ACCOUNT] === ""
+        ) {
+          Alert.alert("Error", "Please fill the required fields first.");
+          return null;
+        }
+        break;
+      case TRANSACTION_TYPES.TRANSFER:
+        if (
+          form[FORM_FIELDS.AMOUNT] === "" ||
+          form[FORM_FIELDS.TO_ACCOUNT] === "" ||
+          form[FORM_FIELDS.FROM_ACCOUNT] === ""
+        ) {
+          Alert.alert("Error", "Please fill the required fields first.");
+          return null;
+        }
+        break;
     }
 
     if (form[FORM_FIELDS.TITLE] === "") {
       form[FORM_FIELDS.TITLE] = placeholderTitle;
     }
 
-    const id = form[FORM_FIELDS.DATE] + "_" + uuidv4();
-    await AsyncStorage.setItem(id, JSON.stringify(form));
-    return id;
+    var newId = form[FORM_FIELDS.ID];
+    if (newId === "") {
+      newId = uuidv4();
+      form[FORM_FIELDS.ID] = newId;
+    }
+    await AsyncStorage.setItem(newId, JSON.stringify(form));
+    return newId;
   }
 
   return (
@@ -75,6 +98,7 @@ export default function FormScreen({
         resetForm={resetForm}
         transactionType={transactionType}
         setTransactionType={setTransactionType}
+        isInEditMode={isInEditMode}
       />
       {transactionType === TRANSACTION_TYPES.EXPENDITURE && (
         <ExpenditureForm
@@ -115,6 +139,8 @@ export default function FormScreen({
                   style: "destructive",
                   onPress: () => {
                     resetForm();
+                    setExistingTransactionId(null);
+                    setIsInEditMode(false);
                     navigation.navigate(SCREENS.HOME);
                   },
                 },
@@ -123,6 +149,35 @@ export default function FormScreen({
           }}
         >
           <Text>Discard</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          disabled={!isInEditMode}
+          style={isInEditMode ? styles.button : styles.buttonDisabled}
+          onPress={() => {
+            Alert.alert(
+              "Delete Transaction",
+              "This transaction will be permanently deleted. Do you want to continue?",
+              [
+                {
+                  text: "Cancel",
+                  style: "cancel",
+                  onPress: () => {},
+                },
+                {
+                  text: "Leave",
+                  style: "destructive",
+                  onPress: () => {
+                    // resetForm();
+                    // setIsInEditMode(false);
+                    // navigation.navigate(SCREENS.HOME);
+                    deleteData();
+                  },
+                },
+              ]
+            );
+          }}
+        >
+          <Text>Delete</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -147,6 +202,14 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderColor: "#FF9986",
+    borderWidth: 1,
+    borderRadius: 5,
+    marginHorizontal: 10,
+  },
+  buttonDisabled: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderColor: "#c0c0c0",
     borderWidth: 1,
     borderRadius: 5,
     marginHorizontal: 10,

@@ -4,13 +4,20 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 import DateButtonGroup from "../common/DateButtonGroup";
 import ViewTransactions from "./ViewTransactions";
-import { DATE_PERIODS, SCREENS } from "../../constants/constants";
+import {
+  DATE_PERIODS,
+  FORM_FIELDS,
+  SCREENS,
+  TRANSACTION_TYPES,
+} from "../../constants/constants";
 
 export default function Home({
   route,
   navigation,
   newId,
   setNewId,
+  existingTransactionId,
+  setExistingTransactionId,
   isFormTouched,
   setIsFormTouched,
 }) {
@@ -71,14 +78,28 @@ export default function Home({
       );
       if (existingGroup) {
         existingGroup.transactions.push(transaction);
-        existingGroup.totalAmount += transaction.amount;
+        existingGroup.totalExpenditure +=
+          transaction.type === TRANSACTION_TYPES.EXPENDITURE
+            ? transaction.amount
+            : 0;
+        existingGroup.totalIncome +=
+          transaction.type === TRANSACTION_TYPES.INCOME
+            ? transaction.amount
+            : 0;
       } else {
         allData.push({
           date: transaction.date,
           displayDate: transaction.displayDate,
           id: transaction.id,
           transactions: [transaction],
-          totalAmount: transaction.amount,
+          totalExpenditure:
+            transaction.type === TRANSACTION_TYPES.EXPENDITURE
+              ? transaction.amount
+              : 0,
+          totalIncome:
+            transaction.type === TRANSACTION_TYPES.INCOME
+              ? transaction.amount
+              : 0,
         });
       }
       return allData;
@@ -92,14 +113,83 @@ export default function Home({
   async function loadNewData() {
     if (newId === null) return;
 
-    setKeysState([...keysState, newId]);
-
+    // read new transaction and convert into js object
     var newTransaction = await AsyncStorage.getItem(newId);
+
+    if (!newTransaction) {
+      const updatedDataState = dataState
+        .map((transactionGroup) => {
+          return {
+            ...transactionGroup,
+            transactions: transactionGroup.transactions.filter(
+              (transaction) => transaction.id !== newId
+            ),
+          };
+        })
+        .filter(
+          (transactionGroup) => transactionGroup.transactions.length !== 0
+        );
+
+      const oldTransaction = dataState.map((transactionGroup) =>
+        transactionGroup.transactions.find(
+          (transaction) => newId === transaction.id
+        )
+      )[0];
+
+      updatedDataState.map((transactionGroup) => {
+        if (oldTransaction[FORM_FIELDS.TYPE] === TRANSACTION_TYPES.EXPENDITURE)
+          transactionGroup.totalExpenditure -= oldTransaction.amount;
+        else if (oldTransaction[FORM_FIELDS.TYPE] === TRANSACTION_TYPES.INCOME)
+          transactionGroup.totalIncome -= oldTransaction.amount;
+      });
+
+      setDataState(updatedDataState);
+      setNewId(null);
+      return;
+    }
+
     newTransaction = JSON.parse(newTransaction);
     newTransaction.displayDate = new Date(
       newTransaction.date
     ).toLocaleDateString();
     newTransaction.id = newId;
+
+    // check if id is already present
+    var newIdPresent = keysState.includes(newId);
+    if (newIdPresent) {
+      var transactionGroup = dataState.find(
+        (transaction) => transaction.displayDate === newTransaction.displayDate
+      );
+
+      const oldTransaction = transactionGroup.transactions.find(
+        (transaction) => transaction.id === newTransaction.id
+      );
+
+      transactionGroup.transactions = transactionGroup.transactions.filter(
+        (transaction) => transaction.id !== newTransaction.id
+      );
+      if (newTransaction.type === TRANSACTION_TYPES.EXPENDITURE) {
+        transactionGroup.totalExpenditure -= oldTransaction.amount;
+        transactionGroup.totalExpenditure += newTransaction.amount;
+      } else if (newTransaction.type === TRANSACTION_TYPES.INCOME) {
+        transactionGroup.totalIncome -= oldTransaction.amount;
+        transactionGroup.totalIncome += newTransaction.amount;
+      }
+
+      transactionGroup.transactions.push(newTransaction);
+
+      var filteredData = dataState.filter(
+        (transaction) => transaction.displayDate !== newTransaction.displayDate
+      );
+
+      var newDataState = [...filteredData, transactionGroup];
+      newDataState.sort((a, b) => new Date(b.date) - new Date(a.date));
+      setDataState(newDataState);
+      setNewId(null);
+      return;
+    }
+
+    setKeysState([...keysState, newId]);
 
     var transactionGroup = dataState.find(
       (transaction) => transaction.displayDate === newTransaction.displayDate
@@ -111,14 +201,28 @@ export default function Home({
         displayDate: newTransaction.displayDate,
         transactions: [newTransaction],
         id: newTransaction.id,
-        totalAmount: newTransaction.amount,
+        totalExpenditure:
+          newTransaction.type === TRANSACTION_TYPES.EXPENDITURE
+            ? newTransaction.amount
+            : 0,
+        totalIncome:
+          newTransaction.type === TRANSACTION_TYPES.INCOME
+            ? newTransaction.amount
+            : 0,
       };
       var newDataState = [...dataState, newTransactionGroup];
       newDataState.sort((a, b) => new Date(b.date) - new Date(a.date));
       setDataState(newDataState);
     } else {
       transactionGroup.transactions.push(newTransaction);
-      transactionGroup.totalAmount += newTransaction.amount;
+      transactionGroup.totalExpenditure +=
+        newTransaction.type === TRANSACTION_TYPES.EXPENDITURE
+          ? newTransaction.amount
+          : 0;
+      transactionGroup.totalIncome +=
+        newTransaction.type === TRANSACTION_TYPES.INCOME
+          ? newTransaction.amount
+          : 0;
 
       var filteredData = dataState.filter(
         (transaction) => transaction.displayDate !== newTransaction.displayDate
@@ -187,19 +291,22 @@ export default function Home({
 
     setCurrentDataState(dateSelectedTransactions);
 
-    var dateSelectedTotalExpenditure = 0;
-    dateSelectedTransactions.map(
-      (transactionGroup) =>
-        (dateSelectedTotalExpenditure += transactionGroup.totalAmount)
-    );
+    var totalExpenditureTemp = 0;
+    var totalIncomeTemp = 0;
 
-    setTotalExpenditure(dateSelectedTotalExpenditure);
+    dateSelectedTransactions.map((transactionGroup) => {
+      totalExpenditureTemp += transactionGroup.totalExpenditure;
+      totalIncomeTemp += transactionGroup.totalIncome;
+    });
+
+    setTotalExpenditure(totalExpenditureTemp);
+    setTotalIncome(totalIncomeTemp);
   }
 
   async function deleteAllData() {
     const allKeys = await AsyncStorage.getAllKeys();
     console.log(allKeys);
-    await AsyncStorage.multiRemove(allKeys);
+    // await AsyncStorage.multiRemove(allKeys);
   }
 
   const loadData = async () => {
@@ -231,8 +338,12 @@ export default function Home({
         </View>
       ) : (
         <ViewTransactions
+          navigation={navigation}
           dataState={currentDataState}
+          setNewId={setNewId}
+          setExistingTransactionId={setExistingTransactionId}
           totalExpenditure={totalExpenditure}
+          totalIncome={totalIncome}
         />
       )}
     </View>
@@ -243,5 +354,6 @@ const styles = StyleSheet.create({
   center: {
     justifyContent: "center",
     alignItems: "center",
+    paddingTop: 25,
   },
 });

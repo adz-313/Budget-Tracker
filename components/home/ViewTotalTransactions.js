@@ -1,13 +1,13 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
-const ViewTotalTransactions = ({ totalExpenditure }) => {
+const ViewTotalTransactions = ({ totalExpenditure, totalIncome }) => {
   return (
     <View style={styles.container}>
       {/* Left Box - Income */}
       <View style={[styles.box, styles.leftBox]}>
         <Text style={styles.labelText}>Income</Text>
-        <Text style={styles.mainText}>$500</Text>
+        <Text style={styles.mainText}>${totalIncome}</Text>
       </View>
 
       {/* Right Box - Expenditure */}
@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
   box: {
     flex: 1,
     marginHorizontal: 5,
-    paddingVertical: 40,
+    paddingVertical: 36,
     paddingHorizontal: 25,
     justifyContent: "center",
     alignItems: "center",
