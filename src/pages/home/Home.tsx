@@ -70,7 +70,7 @@ export default function Home({
 
   const loadData = async () => {
     if (dataState.length === 0) {
-      await loadInitialData(setKeysState, setDataState, setNewTransactionId);
+      await loadInitialData(setKeysState, setDataState);
     } else {
       await loadNewData(
         newTransactionId,

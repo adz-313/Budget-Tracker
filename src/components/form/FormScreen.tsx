@@ -72,7 +72,7 @@ export default function FormScreen({
       form[FORM_FIELDS.TITLE] = placeholderTitle;
     }
 
-    var newTransactionId = form[FORM_FIELDS.ID];
+    let newTransactionId = form[FORM_FIELDS.ID];
     if (newTransactionId === "") {
       newTransactionId = uuidv4();
       form[FORM_FIELDS.ID] = newTransactionId;
@@ -95,7 +95,7 @@ export default function FormScreen({
       form[FORM_FIELDS.TITLE] = placeholderTitle;
     }
 
-    var newTransactionId = form[FORM_FIELDS.ID];
+    let newTransactionId = form[FORM_FIELDS.ID];
     if (newTransactionId === "") {
       newTransactionId = uuidv4();
       form[FORM_FIELDS.ID] = newTransactionId;

@@ -18,7 +18,7 @@ export default function TransactionTypeButtonGroup({
             styles.disabledButton,
           isInEditMode &&
             selectedTransactionType === TRANSACTION_TYPES.INCOME &&
-            styles.unselectedButton,
+            styles.selectedButton,
           !isInEditMode &&
             selectedTransactionType !== TRANSACTION_TYPES.INCOME &&
             styles.unselectedButton,
@@ -27,6 +27,7 @@ export default function TransactionTypeButtonGroup({
             styles.selectedButton,
         ]}
         onPress={() => {
+          if (selectedTransactionType === TRANSACTION_TYPES.INCOME) return;
           resetForm();
           setSelectedTransactionType(TRANSACTION_TYPES.INCOME);
         }}
@@ -52,7 +53,7 @@ export default function TransactionTypeButtonGroup({
             styles.disabledButton,
           isInEditMode &&
             selectedTransactionType === TRANSACTION_TYPES.EXPENDITURE &&
-            styles.unselectedButton,
+            styles.selectedButton,
           !isInEditMode &&
             selectedTransactionType !== TRANSACTION_TYPES.EXPENDITURE &&
             styles.unselectedButton,
@@ -61,6 +62,7 @@ export default function TransactionTypeButtonGroup({
             styles.selectedButton,
         ]}
         onPress={() => {
+          if (selectedTransactionType === TRANSACTION_TYPES.EXPENDITURE) return;
           resetForm();
           setSelectedTransactionType(TRANSACTION_TYPES.EXPENDITURE);
         }}
@@ -82,13 +84,21 @@ export default function TransactionTypeButtonGroup({
       <TouchableOpacity
         style={[
           styles.button,
-          isInEditMode && selectedTransactionType !== TRANSACTION_TYPES.TRANSFER
-            ? styles.disabledButton
-            : styles.unselectedButton,
-          selectedTransactionType === TRANSACTION_TYPES.TRANSFER &&
+          isInEditMode &&
+            selectedTransactionType !== TRANSACTION_TYPES.TRANSFER &&
+            styles.disabledButton,
+          isInEditMode &&
+            selectedTransactionType === TRANSACTION_TYPES.TRANSFER &&
+            styles.selectedButton,
+          !isInEditMode &&
+            selectedTransactionType !== TRANSACTION_TYPES.TRANSFER &&
+            styles.unselectedButton,
+          !isInEditMode &&
+            selectedTransactionType === TRANSACTION_TYPES.TRANSFER &&
             styles.selectedButton,
         ]}
         onPress={() => {
+          if (selectedTransactionType === TRANSACTION_TYPES.TRANSFER) return;
           resetForm();
           setSelectedTransactionType(TRANSACTION_TYPES.TRANSFER);
         }}

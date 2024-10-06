@@ -39,7 +39,11 @@ export default function TransferForm({
           style={styles.input}
           placeholder="Enter amount"
           keyboardType="numeric"
-          value={form[FORM_FIELDS.AMOUNT].toString()}
+          value={
+            form[FORM_FIELDS.AMOUNT] === 0
+              ? ""
+              : form[FORM_FIELDS.AMOUNT].toString()
+          }
           onChangeText={(value) => {
             if (value === "") handleInputChange(FORM_FIELDS.AMOUNT, value);
             else handleInputChange(FORM_FIELDS.AMOUNT, Number.parseInt(value));

@@ -56,8 +56,8 @@ export default function Form({
       setTransactionForm({ ...transactionForm, [name]: value });
     else if (selectedTransactionType === TRANSACTION_TYPES.INCOME)
       setTransactionForm({ ...transactionForm, [name]: value });
-    // else if (transactionType === TRANSACTION_TYPES.TRANSFER)
-    // setTransferForm({ ...transferForm, [name]: value });
+    else if (selectedTransactionType === TRANSACTION_TYPES.TRANSFER)
+      setTransferForm({ ...transferForm, [name]: value });
   };
 
   function resetForm() {
@@ -177,7 +177,10 @@ export default function Form({
           />
         )}
       </Stack.Screen>
-      <Stack.Screen name={SCREENS.SELECT_CATEGORIES_SCREEN}>
+      <Stack.Screen
+        name={SCREENS.SELECT_CATEGORIES_SCREEN}
+        options={{ headerTitle: "Select Category" }}
+      >
         {(props) => (
           <SelectCategoriesScreen
             {...props}
@@ -186,7 +189,10 @@ export default function Form({
           />
         )}
       </Stack.Screen>
-      <Stack.Screen name={SCREENS.SELECT_ACCOUNTS_SCREEN}>
+      <Stack.Screen
+        name={SCREENS.SELECT_ACCOUNTS_SCREEN}
+        options={{ headerTitle: "Select Account" }}
+      >
         {(props) => (
           <SelectAccountsScreen
             {...props}

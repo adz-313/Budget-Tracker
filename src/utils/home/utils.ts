@@ -1,4 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { v4 as uuidv4 } from "uuid";
+// this random value import is used for uuid to work
+import "react-native-get-random-values";
 import { KeyValuePair } from "@react-native-async-storage/async-storage/lib/typescript/types";
 import { Transaction, TransactionGroup } from "@src/types/common/types";
 import {
@@ -9,8 +12,7 @@ import {
 
 export async function loadInitialData(
   setKeysState: (keysState: string[]) => void,
-  setDataState: (dataState: TransactionGroup[]) => void,
-  setNewTransactionId: (newTransactionId: string) => void
+  setDataState: (dataState: TransactionGroup[]) => void
 ) {
   const allKeys: string[] = [...(await AsyncStorage.getAllKeys())];
 
@@ -38,7 +40,8 @@ export async function loadInitialData(
       // if (!transaction) return;
 
       const existingGroup = allData.find(
-        (group) => group.displayDate === transaction.displayDate
+        (transactionGroup) =>
+          transactionGroup.displayDate === transaction.displayDate
       );
       if (existingGroup) {
         existingGroup.transactions.push(transaction);
@@ -70,8 +73,6 @@ export async function loadInitialData(
     }, []);
 
   setDataState(groupedData);
-
-  setNewTransactionId("");
 }
 
 export async function loadNewData(
@@ -81,110 +82,132 @@ export async function loadNewData(
   keysState: string[],
   setKeysState: (keysState: string[]) => void
 ) {
+  // if newTxnId is empty, return
   if (newTransactionId === "") return;
 
-  // read new transaction and convert into js object
+  // read new transaction into JSON string
   let newTransactionJSON: string | null = await AsyncStorage.getItem(
     newTransactionId
   );
 
-  // item deleted
+  // if the newTxnJson is empty, the key is not found in the storage so the transaction has been deleted
+  // handle txn delete
   if (!newTransactionJSON || newTransactionJSON === null) {
-    const updatedDataState: TransactionGroup[] = dataState
-      .map((transactionGroup) => {
-        return {
-          ...transactionGroup,
-          transactions: transactionGroup.transactions.filter(
-            (transaction) => transaction.id !== newTransactionId
-          ),
-        };
-      })
-      .filter(
-        (transactionGroup: TransactionGroup) =>
-          transactionGroup.transactions.length !== 0
-      );
-
-    const oldTransaction = dataState.map((transactionGroup) =>
-      transactionGroup.transactions.find(
-        (transaction) => newTransactionId === transaction.id
-      )
-    )[0];
-
-    if (oldTransaction) {
-      updatedDataState.map((transactionGroup) => {
-        if (
-          oldTransaction[FORM_FIELDS.TRANSACTION_TYPE] ===
-          TRANSACTION_TYPES.EXPENDITURE
-        )
-          transactionGroup.totalExpenditure -= oldTransaction.amount;
-        else if (
-          oldTransaction[FORM_FIELDS.TRANSACTION_TYPE] ===
-          TRANSACTION_TYPES.INCOME
-        )
-          transactionGroup.totalIncome -= oldTransaction.amount;
-      });
-    }
-
+    const updatedDataState = handleTransactionDelete(
+      dataState,
+      newTransactionId
+    );
     setDataState(updatedDataState);
     return;
   }
 
+  // if txn json string is found, convert into a TS object
   let newTransaction: Transaction = JSON.parse(newTransactionJSON);
   newTransaction.displayDate = new Date(
     newTransaction.date
   ).toLocaleDateString();
   newTransaction.id = newTransactionId;
 
-  // check if id is already present
-  var newIdPresent = keysState.includes(newTransactionId);
+  // if the newTxnId is already present in the keys state, an existing txn has been edited
+  let newIdPresent = keysState.includes(newTransactionId);
+
+  // the transaction is edited if newId is already present
+  // handle txn edit
   if (newIdPresent) {
-    var transactionGroup = dataState.find(
-      (transaction) => transaction.displayDate === newTransaction.displayDate
-    );
-
-    if (!transactionGroup) return;
-
-    const oldTransaction = transactionGroup.transactions.find(
-      (transaction) => transaction.id === newTransaction.id
-    );
-
-    if (!oldTransaction) return;
-
-    transactionGroup.transactions = transactionGroup.transactions.filter(
-      (transaction) => transaction.id !== newTransaction.id
-    );
-    if (newTransaction.transactionType === TRANSACTION_TYPES.EXPENDITURE) {
-      transactionGroup.totalExpenditure -= oldTransaction.amount;
-      transactionGroup.totalExpenditure += newTransaction.amount;
-    } else if (newTransaction.transactionType === TRANSACTION_TYPES.INCOME) {
-      transactionGroup.totalIncome -= oldTransaction.amount;
-      transactionGroup.totalIncome += newTransaction.amount;
-    }
-
-    transactionGroup.transactions.push(newTransaction);
-
-    var filteredData = dataState.filter(
-      (transaction) => transaction.displayDate !== newTransaction.displayDate
-    );
-
-    var newDataState = [...filteredData, transactionGroup];
-    newDataState.sort((a, b) => (new Date(b.date) > new Date(a.date) ? 1 : -1));
-    setDataState(newDataState);
+    const newDataState = handleTransactionEdit(dataState, newTransaction);
+    if (newDataState != null) setDataState(newDataState);
     return;
   }
 
+  // if the newtxnid wasn't found, new txn has been added
+
+  // add the id in keys state
   setKeysState([...keysState, newTransactionId]);
 
-  var transactionGroup = dataState.find(
+  // handle txn add
+  const newDataState: TransactionGroup[] = handleTransactionAdd(
+    dataState,
+    newTransaction
+  );
+  setDataState(newDataState);
+}
+
+function handleTransactionEdit(
+  dataState: TransactionGroup[],
+  newTransaction: Transaction
+): TransactionGroup[] | null {
+  // delete old transaction
+  let updatedDataState: TransactionGroup[] = removeTransactionFromGroup(
+    dataState,
+    newTransaction.id
+  );
+
+  updatedDataState = updatedDataState.filter(
+    (txngrp) => txngrp.transactions.length > 0
+  );
+
+  updatedDataState = handleTransactionAdd(updatedDataState, newTransaction);
+
+  return updatedDataState;
+}
+
+function handleTransactionDelete(
+  dataState: TransactionGroup[],
+  newTransactionId: string
+): TransactionGroup[] {
+  const updatedDataState: TransactionGroup[] = dataState
+    .map((transactionGroup) => {
+      return {
+        ...transactionGroup,
+        transactions: transactionGroup.transactions.filter(
+          (transaction) => transaction.id !== newTransactionId
+        ),
+      };
+    })
+    .filter(
+      (transactionGroup: TransactionGroup) =>
+        transactionGroup.transactions.length !== 0
+    );
+
+  const oldTransaction = dataState
+    .flatMap(
+      (transactionGroupIterator: TransactionGroup) =>
+        transactionGroupIterator.transactions
+    )
+    .find((transactionIterator) => transactionIterator.id === newTransactionId);
+
+  if (oldTransaction) {
+    updatedDataState.map((transactionGroup) => {
+      if (
+        oldTransaction[FORM_FIELDS.TRANSACTION_TYPE] ===
+        TRANSACTION_TYPES.EXPENDITURE
+      )
+        transactionGroup.totalExpenditure -= oldTransaction.amount;
+      else if (
+        oldTransaction[FORM_FIELDS.TRANSACTION_TYPE] ===
+        TRANSACTION_TYPES.INCOME
+      )
+        transactionGroup.totalIncome -= oldTransaction.amount;
+    });
+  }
+  return updatedDataState;
+}
+
+function handleTransactionAdd(
+  dataState: TransactionGroup[],
+  newTransaction: Transaction
+): TransactionGroup[] {
+  let newDataState: TransactionGroup[];
+  let transactionGroup = dataState.find(
     (transaction) => transaction.displayDate === newTransaction.displayDate
   );
 
   if (!transactionGroup) {
-    var newTransactionGroup = {
+    let newTransactionGroup = {
       date: newTransaction.date,
       displayDate: newTransaction.displayDate,
       transactions: [newTransaction],
-      id: newTransaction.id,
+      id: uuidv4(),
       totalExpenditure:
         newTransaction.transactionType === TRANSACTION_TYPES.EXPENDITURE
           ? newTransaction.amount
@@ -194,28 +217,31 @@ export async function loadNewData(
           ? newTransaction.amount
           : 0,
     };
-    var newDataState = [...dataState, newTransactionGroup];
+    newDataState = [...dataState, newTransactionGroup];
+
     newDataState.sort((a, b) => (new Date(b.date) > new Date(a.date) ? 1 : -1));
-    setDataState(newDataState);
   } else {
-    transactionGroup.transactions.push(newTransaction);
-    transactionGroup.totalExpenditure +=
-      newTransaction.transactionType === TRANSACTION_TYPES.EXPENDITURE
-        ? newTransaction.amount
-        : 0;
-    transactionGroup.totalIncome +=
-      newTransaction.transactionType === TRANSACTION_TYPES.INCOME
-        ? newTransaction.amount
-        : 0;
+    // transactionGroup.transactions.push(newTransaction);
+    // transactionGroup.totalExpenditure +=
+    //   newTransaction.transactionType === TRANSACTION_TYPES.EXPENDITURE
+    //     ? newTransaction.amount
+    //     : 0;
+    // transactionGroup.totalIncome +=
+    //   newTransaction.transactionType === TRANSACTION_TYPES.INCOME
+    //     ? newTransaction.amount
+    //     : 0;
 
-    var filteredData = dataState.filter(
-      (transaction) => transaction.displayDate !== newTransaction.displayDate
-    );
+    // let filteredData = dataState.filter(
+    //   (transaction) => transaction.displayDate !== newTransaction.displayDate
+    // );
 
-    var newDataState = [...filteredData, transactionGroup];
+    // newDataState = [...filteredData, transactionGroup];
+
+    newDataState = addTransactionToGroup(dataState, newTransaction);
+
     newDataState.sort((a, b) => (new Date(b.date) > new Date(a.date) ? 1 : -1));
-    setDataState(newDataState);
   }
+  return newDataState;
 }
 
 export function reloadDataOnDateSelectionChange(
@@ -279,8 +305,8 @@ export function reloadDataOnDateSelectionChange(
 
   setCurrentDataState(dateSelectedTransactions);
 
-  var totalExpenditureTemp = 0;
-  var totalIncomeTemp = 0;
+  let totalExpenditureTemp = 0;
+  let totalIncomeTemp = 0;
 
   dateSelectedTransactions.map((transactionGroup) => {
     totalExpenditureTemp += transactionGroup.totalExpenditure;
@@ -290,3 +316,78 @@ export function reloadDataOnDateSelectionChange(
   setTotalExpenditure(totalExpenditureTemp);
   setTotalIncome(totalIncomeTemp);
 }
+
+const removeTransactionFromGroup = (
+  transactionGroups: TransactionGroup[],
+  transactionId: string
+): TransactionGroup[] => {
+  return transactionGroups.map((transactionGroup) => {
+    const transactionToRemove = transactionGroup.transactions.find(
+      (transaction) => transaction.id === transactionId
+    );
+
+    if (transactionToRemove) {
+      // Filter out the transaction to remove it
+      const updatedTransactions = transactionGroup.transactions.filter(
+        (transaction) => transaction.id !== transactionId
+      );
+
+      // Update income or expenditure based on the transactionType
+      let updatedTotalIncome = transactionGroup.totalIncome;
+      let updatedTotalExpenditure = transactionGroup.totalExpenditure;
+
+      if (transactionToRemove.transactionType === TRANSACTION_TYPES.INCOME) {
+        updatedTotalIncome -= transactionToRemove.amount;
+      } else if (
+        transactionToRemove.transactionType === TRANSACTION_TYPES.EXPENDITURE
+      ) {
+        updatedTotalExpenditure -= transactionToRemove.amount;
+      }
+
+      // Return the updated transactionGroup with new totals and transactions
+      return {
+        ...transactionGroup,
+        transactions: updatedTransactions,
+        totalIncome: updatedTotalIncome,
+        totalExpenditure: updatedTotalExpenditure,
+      };
+    }
+
+    // If no matching transaction, return the transactionGroup unchanged
+    return transactionGroup;
+  });
+};
+
+const addTransactionToGroup = (
+  dataState: TransactionGroup[],
+  newTransaction: Transaction
+): TransactionGroup[] => {
+  return dataState.map((transactionGroup) => {
+    if (transactionGroup.displayDate === newTransaction.displayDate) {
+      const updatedTransactions = [
+        ...transactionGroup.transactions,
+        newTransaction,
+      ];
+
+      let updatedTotalIncome = transactionGroup.totalIncome;
+      let updatedTotalExpenditure = transactionGroup.totalExpenditure;
+
+      if (newTransaction.transactionType === TRANSACTION_TYPES.INCOME) {
+        updatedTotalIncome += newTransaction.amount;
+      } else if (
+        newTransaction.transactionType === TRANSACTION_TYPES.EXPENDITURE
+      ) {
+        updatedTotalExpenditure += newTransaction.amount;
+      }
+
+      return {
+        ...transactionGroup,
+        transactions: updatedTransactions,
+        totalIncome: updatedTotalIncome,
+        totalExpenditure: updatedTotalExpenditure,
+      };
+    }
+
+    return transactionGroup;
+  });
+};

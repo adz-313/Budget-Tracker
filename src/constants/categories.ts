@@ -49,7 +49,7 @@ export const categories = {
 
 export const getCategories = (categoryType: TRANSACTION_TYPES) => {
   const numColumns = 4;
-  var length = categories[categoryType].length;
+  let length = categories[categoryType].length;
   const remainder = length % numColumns;
   if (remainder !== 0) {
     const numEmptySlots = numColumns - remainder;
