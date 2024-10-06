@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+      "types": ["react-native", "node"],
+      "strict": true,
+      "baseUrl": ".",
+      "paths": {
+          "@assets/*": ["./assets/*"],
+          "@src/*": ["./src/*"],
+          "@components/*": ["./src/components/*"],
+          "@constants/*": ["./src/constants/*"],
+          "@pages/*": ["./src/pages/*"],
+          "@utils/*": ["./src/utils/*"],
+      }
+  },
+  "include": ["src"],
+  "exclude": ["**/node_modules/*"]
+}
